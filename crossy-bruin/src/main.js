@@ -150,6 +150,9 @@ world.add(player);
 world.add(camera);
 
 world.add(new THREE.AmbientLight());
+const dirLight = new THREE.DirectionalLight();
+dirLight.position.set(-100, -100, 200);
+world.add(dirLight);
 
 const map = new THREE.Group();
 for (let i = 0; i < 10; i++) {
