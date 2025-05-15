@@ -6,6 +6,7 @@ let position = {
   currTile: 0
 };
 let currMove = null;
+let currDirection = 0;
 
 const playerClock = new THREE.Clock(false);
 
@@ -13,6 +14,7 @@ const minTile = -8;
 const maxTile = 8;
 const tilesPerRow = maxTile - minTile + 1;
 const tileSize = 42;
+const cameraOffset = new THREE.Vector3(200, -300, 350);
 
 let score = 0;
 
@@ -137,13 +139,15 @@ camera.up.set(0, 0, 1); // Make z-axis the up direction
 camera.position.set(200, -300, 350);
 camera.lookAt(0, 0, 0);
 
+const savedQuarternion = camera.quaternion.clone();
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 // World
 const world = new THREE.Scene();
 const player = new Player();
 world.add(player);
-player.add(camera);
+world.add(camera);
 
 world.add(new THREE.AmbientLight());
 
@@ -198,19 +202,24 @@ function animatePlayer() {
   const startY = position.currRow * tileSize;
   let endX = startX;
   let endY = startY;
+  let endDirection = currDirection;
 
   switch (currMove) {
     case "forward":
       endY += tileSize;
+      endDirection = 0;
       break;
     case "backward":
       endY -= tileSize;
+      endDirection = Math.PI;
       break;
     case "left":
       endX -= tileSize;
+      endDirection = Math.PI / 2;
       break;
     case "right":
       endX += tileSize;
+      endDirection = -Math.PI / 2;
       break;
   }
 
@@ -219,6 +228,7 @@ function animatePlayer() {
   const progress = Math.min(1, playerClock.getElapsedTime() / stepTime);
   player.position.x = THREE.MathUtils.lerp(startX, endX, progress);
   player.position.y = THREE.MathUtils.lerp(startY, endY, progress);
+  player.rotation.z = THREE.MathUtils.lerp(currDirection, endDirection, progress);
 
   // Must loop through for z instead of player.position.z else it will move the camera too
   for (let i = 0; i < player.children.length; i++) {
@@ -227,20 +237,28 @@ function animatePlayer() {
     // console.log(playerBase[i]);
   }
   
+  // camera.quaternion.copy(savedQuarternion);
+  camera.position.copy(player.position).add(cameraOffset);
+  camera.lookAt(player.position);
+  
   // Move finished, process it
   if (progress >= 1) {
     switch (currMove) {
       case "forward":
         position.currRow += 1;
+        currDirection = 0;
         break;
       case "backward":
         position.currRow -= 1;
+        currDirection = Math.PI;
         break;
       case "left":
         position.currTile -= 1;
+        currDirection = Math.PI / 2;
         break;
       case "right":
         position.currTile += 1;
+        currDirection = -Math.PI / 2;
         break;
     }
 
