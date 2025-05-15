@@ -14,7 +14,11 @@ const maxTile = 8;
 const tilesPerRow = maxTile - minTile + 1;
 const tileSize = 42;
 
+let score = 0;
+
 let playerBase = []; // Used to store the coords of each player body part
+
+const scoreElement = document.getElementById("score");
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -242,6 +246,9 @@ function animatePlayer() {
 
     // console.log(position);
     console.log(currMove + " finished");
+
+    if (position.currRow > score) score = position.currRow;
+    scoreElement.textContent = score;
 
     currMove = null;
     playerClock.stop();
