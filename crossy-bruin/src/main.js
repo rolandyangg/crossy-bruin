@@ -168,8 +168,8 @@ export function addRows() {
       const row = Land(rowIndex);
 
       rowData.trees.forEach(({ tileIndex, height }) => {
-        const three = Tree(tileIndex, height);
-        row.add(three);
+        const tree = Tree(tileIndex, height);
+        row.add(tree);
       });
 
       map.add(row);
@@ -271,28 +271,37 @@ function move(direction) {
 }
 
 function isValidMove(direction) {
-  let newPosition = {row: 0, tile: 0};
+  let newPosition = {row: position.currRow, tile: position.currTile};
 
   switch (direction) {
   case "forward":
-    newPosition.row = position.currRow + 1;
+    newPosition.row += 1;
     break;
   case "backward":
-    newPosition.row = position.currRow - 1;
+    newPosition.row -= 1;
     break;
   case "left":
-    newPosition.tile = position.currTile - 1;
+    newPosition.tile -= 1;
     break;
   case "right":
-    newPosition.tile = position.currTile + 1;
+    newPosition.tile += 1;
     break;
   }
 
+  // border detection
   if (newPosition.row <= -1 || newPosition.tile < minTile || newPosition.tile > maxTile) {
     return false;
   }
 
   // tree detection
+  const newRow = metadata[newPosition.row - 1];
+
+  if (
+    newRow && 
+    newRow.type == "trees" && 
+    newRow.trees.some((tree) => tree.tileIndex == newPosition.tile)){
+      return false;
+  }
 
   return true;
 }
