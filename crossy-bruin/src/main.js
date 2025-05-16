@@ -29,7 +29,7 @@ const finalScoreElement = document.getElementById("final-score");
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 // Models
-export function Scooter(tileIndex, direction) {
+export function Scooter(tileIndex, direction, shirtColor, neckColor, skinColor) {
   const scooter = new THREE.Group();
 
   scooter.position.x = tileIndex * tileSize;
@@ -81,7 +81,7 @@ export function Scooter(tileIndex, direction) {
 
   // Torso/Sweatshirt (dark blue)
   const torsoGeometry = new THREE.BoxGeometry(15, 15, 30);
-  const torsoMaterial = new THREE.MeshPhongMaterial({ color: "#1f3a93" });
+  const torsoMaterial = new THREE.MeshPhongMaterial({ color: shirtColor }); // #"#1f3a93"
   const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
   const torsoCoords = [0, 0, 19];
   torso.position.set(...torsoCoords);
@@ -90,7 +90,7 @@ export function Scooter(tileIndex, direction) {
 
   // Shoulder stripe (gold)
   const shoulderGeometry = new THREE.BoxGeometry(15, 15, 5);
-  const shoulderMaterial = new THREE.MeshPhongMaterial({ color: "#ffd966" });
+  const shoulderMaterial = new THREE.MeshPhongMaterial({ color: neckColor }); // "#ffd966"
   const shoulders = new THREE.Mesh(shoulderGeometry, shoulderMaterial);
   const shouldersCoords = [0, 0, 36.5];
   shoulders.position.set(...shouldersCoords);
@@ -99,7 +99,7 @@ export function Scooter(tileIndex, direction) {
 
   // Head (skin tone)
   const headGeometry = new THREE.BoxGeometry(15, 15, 15);
-  const headMaterial = new THREE.MeshPhongMaterial({ color: "#ffe3c0" });
+  const headMaterial = new THREE.MeshPhongMaterial({ color: skinColor });
   const head = new THREE.Mesh(headGeometry, headMaterial);
   const headCoords = [0, 0, 46.5];
   head.position.set(...headCoords);
@@ -117,7 +117,7 @@ export function Scooter(tileIndex, direction) {
 
   // Left arm (skin tone)
   const armGeometry = new THREE.BoxGeometry(5, 16, 5);
-  const armMaterial = new THREE.MeshPhongMaterial({ color: "#ffe3c0" });
+  const armMaterial = new THREE.MeshPhongMaterial({ color: skinColor });
   const leftArm = new THREE.Mesh(armGeometry, armMaterial);
   const leftArmCoords = [-10, 10, 31];
   leftArm.position.set(...leftArmCoords);
@@ -133,7 +133,7 @@ export function Scooter(tileIndex, direction) {
 
   // Right sleeve (dark blue)
   const sleeveGeometry = new THREE.BoxGeometry(7, 10, 7);
-  const sleeveMaterial = new THREE.MeshPhongMaterial({ color: "#1f3a93" });
+  const sleeveMaterial = new THREE.MeshPhongMaterial({ color: shirtColor });
   const rightSleeve = new THREE.Mesh(sleeveGeometry, sleeveMaterial);
   const rightSleeveCoords = [10, 0, 31];
   rightSleeve.position.set(...rightSleeveCoords);
@@ -319,7 +319,29 @@ export function addRows() {
       const row = Road(rowIndex);
 
       rowData.scooters.forEach(({ tileIndex }, index) => {
-        const scooter = new Scooter(tileIndex, rowData.direction);
+        const shirtPalette = [
+          '#2774AE', // UCLA Primary Blue
+          '#FFD100', // UCLA Primary Gold
+          '#005A9C', // UCLA Dark Blue
+          '#438CCE', // UCLA Secondary Light Blue
+          '#FDB927', // UCLA Secondary Gold
+          '#003DA5', // UCLA Royal Dark Blue
+          '#91B5E3'  // UCLA Tertiary Pale Blue
+        ];
+        
+
+        const skinTones = [
+          '#F2D6CB',
+          '#E0AC69',
+          '#C68642',
+          '#8D5524'
+        ];
+
+        let shirtColor = shirtPalette[Math.floor(Math.random() * shirtPalette.length)];
+        let neckColor = shirtPalette[Math.floor(Math.random() * shirtPalette.length)];
+        let skinColor = skinTones[Math.floor(Math.random() * skinTones.length)];
+
+        const scooter = new Scooter(tileIndex, rowData.direction, shirtColor, neckColor, skinColor);
 
         scooter.position.set(tileIndex * tileSize, 0, 5);
 
@@ -353,7 +375,7 @@ function buildTrees() {
     } while (occupiedTiles.has(tileIndex));
     occupiedTiles.add(tileIndex);
 
-    const height = 45;
+    const height = Math.floor(Math.random() * (45 - 10 + 1)) + 25; // Choose a random tree height
 
     return { tileIndex, height };
   });
