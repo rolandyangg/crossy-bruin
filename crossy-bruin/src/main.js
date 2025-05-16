@@ -194,6 +194,8 @@ window.addEventListener("keydown", (event) => {
     direction = "left";
   } else if (event.key === "ArrowRight" || event.key === "d") {
     direction = "right";
+  } else {
+    return;
   }
 
   if (!isValidMove(direction, position.currRow, position.currTile)) {
@@ -330,6 +332,7 @@ function collisionCheck() {
         ggElement.style.visibility = "visible";
         isGameRunning = false;
         finalScoreElement.innerText = score.toString();
+        gameRunning = false;
       }
     });
   }
