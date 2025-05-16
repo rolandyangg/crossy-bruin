@@ -181,18 +181,52 @@ function move(direction) {
   console.log(currMove + " started");
 }
 
+function isValidMove(direction) {
+  let newPosition = {row: 0, tile: 0};
+
+  switch (direction) {
+  case "forward":
+    newPosition.row = position.currRow + 1;
+    break;
+  case "backward":
+    newPosition.row = position.currRow - 1;
+    break;
+  case "left":
+    newPosition.tile = position.currTile - 1;
+    break;
+  case "right":
+    newPosition.tile = position.currTile + 1;
+    break;
+  }
+
+  if (newPosition.row <= -1 || newPosition.tile < minTile || newPosition.tile > maxTile) {
+    return false;
+  }
+
+  // tree detection
+
+  return true;
+}
+
 window.addEventListener("keydown", (event) => {
   if (currMove != null) return;
-
+  
+  let direction; 
   if (event.key === "ArrowUp" || event.key === "w" || event.key === " ") {
-    move("forward");
+    direction = "forward";
   } else if (event.key === "ArrowDown" || event.key === "s") {
-    move("backward");
+    direction = "backward";
   } else if (event.key === "ArrowLeft" || event.key === "a") {
-    move("left");
+    direction = "left";
   } else if (event.key === "ArrowRight" || event.key === "d") {
-    move("right");
+    direction = "right";
   }
+
+  if (!isValidMove(direction)){
+    direction = "static-" + direction;
+  }
+
+  move(direction);
 });
 
 function animatePlayer() {
@@ -210,24 +244,28 @@ function animatePlayer() {
   switch (currMove) {
     case "forward":
       endY += tileSize;
+    case "static-forward":
       endDirection = 0;
       break;
     case "backward":
       endY -= tileSize;
+    case "static-backward":
       endDirection = Math.PI;
       break;
     case "left":
       endX -= tileSize;
+    case "static-left":
       endDirection = Math.PI / 2;
       break;
     case "right":
       endX += tileSize;
+    case "static-right":
       endDirection = -Math.PI / 2;
       break;
   }
 
   // Animate it
-  const stepTime = 0.1; // Seconds it takes to take a step
+  const stepTime = 0.15; // Seconds it takes to take a step
   const progress = Math.min(1, playerClock.getElapsedTime() / stepTime);
   player.position.x = THREE.MathUtils.lerp(startX, endX, progress);
   player.position.y = THREE.MathUtils.lerp(startY, endY, progress);
@@ -249,18 +287,22 @@ function animatePlayer() {
     switch (currMove) {
       case "forward":
         position.currRow += 1;
+      case "static-forward":
         currDirection = 0;
         break;
       case "backward":
         position.currRow -= 1;
+      case "static-backward":
         currDirection = Math.PI;
         break;
       case "left":
         position.currTile -= 1;
+      case "static-left":
         currDirection = Math.PI / 2;
         break;
       case "right":
         position.currTile += 1;
+      case "static-right":
         currDirection = -Math.PI / 2;
         break;
     }
