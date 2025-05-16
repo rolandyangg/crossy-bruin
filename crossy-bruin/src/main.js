@@ -316,7 +316,7 @@ export function addRows() {
     if (rowData.type === "scooter") {
       const row = Road(rowIndex);
 
-      rowData.scooters.forEach(({ tileIndex, index }) => {
+      rowData.scooters.forEach(({ tileIndex }, index) => {
         const scooter = new Scooter(tileIndex, rowData.direction);
 
         scooter.position.set(tileIndex * tileSize, 0, 5);
@@ -336,7 +336,7 @@ export function addRows() {
 function buildRows(amount) {
   const rows = [];
   for (let i = 0; i < amount; i++) {
-    const rowData = Math.random() < 0.3 ? buildScooters() : buildTrees();
+    const rowData = Math.random() < 0.5 ? buildScooters() : buildTrees();
     rows.push(rowData);
   }
   return rows;
@@ -361,7 +361,7 @@ function buildTrees() {
 
 function buildScooters() {
   const direction = Math.random() < 0.5 ? 1 : -1;
-  const speed = Math.random() * 40 + 80;
+  const speed = Math.random() * 40 + 120;
 
   const occupiedTiles = new Set();
   const scooters = Array.from({ length: 2 }, () => {
@@ -578,7 +578,30 @@ function animatePlayer() {
   }
 }
 
+const scooterClock = new THREE.Clock();
+
+export function animateScooters() {
+  const dt = scooterClock.getDelta();
+  metadata.forEach((rowData) => {
+    if (rowData.type !== "scooter") return;
+
+    const leftBound = (minTile - 2) * tileSize;
+    const rightBound = (maxTile + 2) * tileSize;
+
+    rowData.scooters.forEach(({ ref }) => {
+      if (!ref) return;
+
+      if (rowData.direction == 1) {
+        ref.position.x = ref.position.x > rightBound ? leftBound : ref.position.x + rowData.speed * dt;
+      } else {
+        ref.position.x = ref.position.x < leftBound ? rightBound : ref.position.x - rowData.speed * dt;
+      }
+    });
+  });
+}
+
 function animate() {
   animatePlayer();
+  animateScooters();
   renderer.render(world, camera);
 }
