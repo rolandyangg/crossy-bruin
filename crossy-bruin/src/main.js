@@ -543,6 +543,8 @@ window.addEventListener("keydown", (event) => {
     direction = "left";
   } else if (event.key === "ArrowRight" || event.key === "d") {
     direction = "right";
+  } else {
+    return;
   }
 
   if (!isValidMove(direction)) {
