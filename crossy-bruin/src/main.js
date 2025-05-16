@@ -27,44 +27,51 @@ const scoreElement = document.getElementById("score");
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 // Models
-export function Scooter() {
+export function Scooter(tileIndex, direction) {
   const scooter = new THREE.Group();
 
+  scooter.position.x = tileIndex * tileSize;
+  if (direction == -1) {
+    scooter.rotation.z = Math.PI / 2;
+  } else {
+    scooter.rotation.z = -Math.PI / 2;
+  }
+
   // Footboard (dark gray)
-  const boardGeometry  = new THREE.BoxGeometry(10, 40, 2);
-  const boardMaterial  = new THREE.MeshPhongMaterial({ color: "#555555" });
-  const board          = new THREE.Mesh(boardGeometry, boardMaterial);
-  const boardCoords    = [0, 0, 3];
+  const boardGeometry = new THREE.BoxGeometry(10, 40, 2);
+  const boardMaterial = new THREE.MeshPhongMaterial({ color: "#555555" });
+  const board = new THREE.Mesh(boardGeometry, boardMaterial);
+  const boardCoords = [0, 0, 3];
   board.position.set(...boardCoords);
   scooter.add(board);
 
   // Front wheel (black)
-  const wheelGeometry    = new THREE.BoxGeometry(7, 7, 6);
-  const wheelMaterial    = new THREE.MeshPhongMaterial({ color: "#000000" });
-  const frontWheel       = new THREE.Mesh(wheelGeometry, wheelMaterial);
+  const wheelGeometry = new THREE.BoxGeometry(7, 7, 6);
+  const wheelMaterial = new THREE.MeshPhongMaterial({ color: "#000000" });
+  const frontWheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
   const frontWheelCoords = [0, 16, 0];
   frontWheel.position.set(...frontWheelCoords);
   scooter.add(frontWheel);
 
   // Back wheel (black)
-  const backWheel       = new THREE.Mesh(wheelGeometry, wheelMaterial);
+  const backWheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
   const backWheelCoords = [0, -16, 0];
   backWheel.position.set(...backWheelCoords);
   scooter.add(backWheel);
 
   // Stem (handle support, black)
-  const stemGeometry  = new THREE.BoxGeometry(3, 3, 35);
-  const stemMaterial  = new THREE.MeshPhongMaterial({ color: "#000000" });
-  const stem          = new THREE.Mesh(stemGeometry, stemMaterial);
-  const stemCoords    = [0, 16, 13];
+  const stemGeometry = new THREE.BoxGeometry(3, 3, 35);
+  const stemMaterial = new THREE.MeshPhongMaterial({ color: "#000000" });
+  const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+  const stemCoords = [0, 16, 13];
   stem.position.set(...stemCoords);
   scooter.add(stem);
 
   // Handlebar (black)
-  const handleGeometry    = new THREE.BoxGeometry(18, 3, 2);
-  const handleMaterial    = new THREE.MeshPhongMaterial({ color: "#000000" });
-  const handlebar         = new THREE.Mesh(handleGeometry, handleMaterial);
-  const handlebarCoords   = [0, 16, 29];
+  const handleGeometry = new THREE.BoxGeometry(18, 3, 2);
+  const handleMaterial = new THREE.MeshPhongMaterial({ color: "#000000" });
+  const handlebar = new THREE.Mesh(handleGeometry, handleMaterial);
+  const handlebarCoords = [0, 16, 29];
   handlebar.position.set(...handlebarCoords);
   scooter.add(handlebar);
 
@@ -238,15 +245,24 @@ function Land(rowIndex) {
   const row = new THREE.Group();
   row.position.y = rowIndex * tileSize;
 
-  const landGeometry = new THREE.BoxGeometry(
-    tilesPerRow * tileSize,
-    tileSize,
-    3
-  );
+  const landGeometry = new THREE.BoxGeometry(tilesPerRow * tileSize, tileSize, 3);
   const landMaterial = new THREE.MeshPhongMaterial({ color: 0xedcea8 });
   const land = new THREE.Mesh(landGeometry, landMaterial);
   land.position.z = 1.5;
   row.add(land);
+
+  return row;
+}
+
+function Road(rowIndex) {
+  const row = new THREE.Group();
+  row.position.y = rowIndex * tileSize;
+
+  const roadGeometry = new THREE.BoxGeometry(tilesPerRow * tileSize, tileSize, 3);
+  const roadMaterial = new THREE.MeshPhongMaterial({ color: "#3B3B3B" });
+  const road = new THREE.Mesh(roadGeometry, roadMaterial);
+  road.position.z = 1.5;
+  row.add(road);
 
   return row;
 }
@@ -297,13 +313,30 @@ export function addRows() {
 
       map.add(row);
     }
+    if (rowData.type === "scooter") {
+      const row = Road(rowIndex);
+
+      rowData.scooters.forEach(({ tileIndex, index }) => {
+        const scooter = new Scooter(tileIndex, rowData.direction);
+
+        scooter.position.set(tileIndex * tileSize, 0, 5);
+
+        scooter.userData.speed = rowData.speed;
+        scooter.userData.direction = rowData.direction;
+
+        rowData.scooters[index].ref = scooter;
+
+        row.add(scooter);
+      });
+      map.add(row);
+    }
   });
 }
 
 function buildRows(amount) {
   const rows = [];
   for (let i = 0; i < amount; i++) {
-    const rowData = buildTrees();
+    const rowData = Math.random() < 0.3 ? buildScooters() : buildTrees();
     rows.push(rowData);
   }
   return rows;
@@ -311,7 +344,7 @@ function buildRows(amount) {
 
 function buildTrees() {
   const occupiedTiles = new Set();
-  const trees = Array.from({ length: 4 }, () => {
+  const trees = Array.from({ length: 3 }, () => {
     let tileIndex;
     do {
       tileIndex = THREE.MathUtils.randInt(minTile, maxTile);
@@ -326,6 +359,24 @@ function buildTrees() {
   return { type: "trees", trees };
 }
 
+function buildScooters() {
+  const direction = Math.random() < 0.5 ? 1 : -1;
+  const speed = Math.random() * 40 + 80;
+
+  const occupiedTiles = new Set();
+  const scooters = Array.from({ length: 2 }, () => {
+    let tileIndex;
+    do {
+      tileIndex = THREE.MathUtils.randInt(minTile, maxTile);
+    } while (occupiedTiles.has(tileIndex));
+    occupiedTiles.add(tileIndex);
+
+    return { tileIndex };
+  });
+
+  return { type: "scooter", direction, speed, scooters };
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 // Camera
@@ -338,14 +389,7 @@ if (aspectRatio < 1) {
   height = size / aspectRatio;
 }
 
-const camera = new THREE.OrthographicCamera(
-  width / -2,
-  width / 2,
-  height / 2,
-  height / -2,
-  100,
-  900
-);
+const camera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, 100, 900);
 camera.up.set(0, 0, 1); // Make z-axis the up direction
 camera.position.set(200, -300, 350);
 camera.lookAt(0, 0, 0);
@@ -359,10 +403,6 @@ const world = new THREE.Scene();
 const player = new Player();
 world.add(player);
 world.add(camera);
-// const scooter = new Scooter();
-// world.add(scooter);
-// scooter.position.z = 5;
-// scooter.rotation.z = Math.PI;
 
 world.add(new THREE.AmbientLight());
 const dirLight = new THREE.DirectionalLight();
@@ -370,10 +410,7 @@ dirLight.position.set(-100, -100, 200);
 world.add(dirLight);
 
 const map = new THREE.Group();
-for (let i = 0; i < 10; i++) {
-  let land = new Land(i);
-  map.add(land);
-}
+
 addRows();
 world.add(map);
 
@@ -398,21 +435,21 @@ function move(direction) {
 }
 
 function isValidMove(direction) {
-  let newPosition = {row: position.currRow, tile: position.currTile};
+  let newPosition = { row: position.currRow, tile: position.currTile };
 
   switch (direction) {
-  case "forward":
-    newPosition.row += 1;
-    break;
-  case "backward":
-    newPosition.row -= 1;
-    break;
-  case "left":
-    newPosition.tile -= 1;
-    break;
-  case "right":
-    newPosition.tile += 1;
-    break;
+    case "forward":
+      newPosition.row += 1;
+      break;
+    case "backward":
+      newPosition.row -= 1;
+      break;
+    case "left":
+      newPosition.tile -= 1;
+      break;
+    case "right":
+      newPosition.tile += 1;
+      break;
   }
 
   // border detection
@@ -423,11 +460,8 @@ function isValidMove(direction) {
   // tree detection
   const newRow = metadata[newPosition.row - 1];
 
-  if (
-    newRow && 
-    newRow.type == "trees" && 
-    newRow.trees.some((tree) => tree.tileIndex == newPosition.tile)){
-      return false;
+  if (newRow && newRow.type == "trees" && newRow.trees.some((tree) => tree.tileIndex == newPosition.tile)) {
+    return false;
   }
 
   return true;
@@ -435,8 +469,8 @@ function isValidMove(direction) {
 
 window.addEventListener("keydown", (event) => {
   if (currMove != null) return;
-  
-  let direction; 
+
+  let direction;
   if (event.key === "ArrowUp" || event.key === "w" || event.key === " ") {
     direction = "forward";
   } else if (event.key === "ArrowDown" || event.key === "s") {
@@ -447,7 +481,7 @@ window.addEventListener("keydown", (event) => {
     direction = "right";
   }
 
-  if (!isValidMove(direction)){
+  if (!isValidMove(direction)) {
     direction = "static-" + direction;
   }
 
@@ -494,17 +528,12 @@ function animatePlayer() {
   const progress = Math.min(1, playerClock.getElapsedTime() / stepTime);
   player.position.x = THREE.MathUtils.lerp(startX, endX, progress);
   player.position.y = THREE.MathUtils.lerp(startY, endY, progress);
-  player.rotation.z = THREE.MathUtils.lerp(
-    currDirection,
-    endDirection,
-    progress
-  );
+  player.rotation.z = THREE.MathUtils.lerp(currDirection, endDirection, progress);
 
   // Must loop through for z instead of player.position.z else it will move the camera too
   for (let i = 0; i < player.children.length; i++) {
     if (player.children[i].isCamera) continue;
-    player.children[i].position.z =
-      Math.sin(progress * Math.PI) * 10 + playerBase[i][2];
+    player.children[i].position.z = Math.sin(progress * Math.PI) * 10 + playerBase[i][2];
     // console.log(playerBase[i]);
   }
 
