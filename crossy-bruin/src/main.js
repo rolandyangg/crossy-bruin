@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { minTile, maxTile, tileSize } from "./exports/globals";
+import { minTile, maxTile, tileSize, shirtPalette, skinTones } from "./exports/globals";
 import { buildScooters, buildTrees } from "./exports/helpers/objectBuilders.js";
 import Scooter from "./exports/models/Scooter.js";
 import Player from "./exports/models/Player.js";
@@ -25,6 +25,7 @@ const scooterClock = new THREE.Clock();
 const cameraOffset = new THREE.Vector3(200, -300, 350);
 
 let score = 0;
+let isGameRunning = false;
 
 const scoreElement = document.getElementById("score");
 const ggElement = document.getElementById("gg-container");
@@ -55,7 +56,11 @@ export function addRows() {
       const row = Road(rowIndex);
 
       rowData.scooters.forEach(({ tileIndex }, index) => {
-        const scooter = new Scooter(tileIndex, rowData.direction);
+        let shirtColor = shirtPalette[Math.floor(Math.random() * shirtPalette.length)];
+        let neckColor = shirtPalette[Math.floor(Math.random() * shirtPalette.length)];
+        let skinColor = skinTones[Math.floor(Math.random() * skinTones.length)];
+
+        const scooter = new Scooter(tileIndex, rowData.direction, shirtColor, neckColor, skinColor);
 
         scooter.position.set(tileIndex * tileSize, 0, 5);
 
@@ -146,6 +151,7 @@ function startGame() {
   resetPlayer();
   resetCamera();
   score = 0;
+  isGameRunning = true;
   if (scoreElement) scoreElement.innerText = "0";
   if (finalScoreElement) finalScoreElement.innerText = "0";
   if (ggElement) ggElement.style.visibility = "hidden";
@@ -177,6 +183,7 @@ function move(direction) {
 
 window.addEventListener("keydown", (event) => {
   if (currMove != null) return;
+  if (!isGameRunning) return;
 
   let direction;
   if (event.key === "ArrowUp" || event.key === "w" || event.key === " ") {
@@ -245,7 +252,6 @@ function animatePlayer() {
     // console.log(playerBase[i]);
   }
 
-  // camera.quaternion.copy(savedQuarternion);
   camera.position.copy(player.position).add(cameraOffset);
   camera.lookAt(player.position);
 
@@ -322,6 +328,7 @@ function collisionCheck() {
       if (playerBoundingBox.intersectsBox(scooterBoundingBox)) {
         if (!ggElement || !finalScoreElement) return;
         ggElement.style.visibility = "visible";
+        isGameRunning = false;
         finalScoreElement.innerText = score.toString();
       }
     });
