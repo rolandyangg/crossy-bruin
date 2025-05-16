@@ -365,6 +365,7 @@ function animatePlayer() {
     if (position.currRow > score) score = position.currRow;
     scoreElement.textContent = score;
 
+    if (position.currRow > metadata.length - 10) addRows();
     currMove = null;
     playerClock.stop();
   }
