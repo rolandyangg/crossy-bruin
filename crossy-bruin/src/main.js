@@ -23,6 +23,8 @@ let playerBase = []; // Used to store the coords of each player body part
 const metadata = [];
 
 const scoreElement = document.getElementById("score");
+const ggElement = document.getElementById("gg-container");
+const finalScoreElement = document.getElementById("final-score");
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -411,8 +413,45 @@ world.add(dirLight);
 
 const map = new THREE.Group();
 
-addRows();
 world.add(map);
+
+startGame();
+
+function resetMap() {
+  metadata.length = 0;
+  map.remove(...map.children);
+
+  for (let rowIndex = 0; rowIndex > -4; rowIndex--) {
+    const land = Land(rowIndex);
+    map.add(land);
+  }
+  addRows();
+}
+
+function resetPlayer() {
+  player.position.x = 0;
+  player.position.y = 0;
+  player.rotation.z = 0;
+
+  position.currRow = 0;
+  position.currTile = 0;
+}
+
+function resetCamera() {
+  camera.position.set(200, -300, 350);
+  camera.lookAt(0, 0, 0);
+}
+
+function startGame() {
+  resetMap();
+  resetPlayer();
+  resetCamera();
+  score = 0;
+  if (scoreElement) scoreElement.innerText = "0";
+  if (finalScoreElement) finalScoreElement.innerText = "0";
+  if (ggElement) ggElement.style.visibility = "hidden";
+}
+document.querySelector("#retry")?.addEventListener("click", startGame);
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -600,8 +639,32 @@ export function animateScooters() {
   });
 }
 
+function collisionCheck() {
+  const rowData = metadata[position.currRow - 1];
+  if (!rowData) return;
+
+  if (rowData.type === "scooter") {
+    const playerBoundingBox = new THREE.Box3();
+    playerBoundingBox.setFromObject(player);
+
+    rowData.scooters.forEach(({ ref }) => {
+      if (!ref) return;
+
+      const scooterBoundingBox = new THREE.Box3();
+      scooterBoundingBox.setFromObject(ref);
+
+      if (playerBoundingBox.intersectsBox(scooterBoundingBox)) {
+        if (!ggElement || !finalScoreElement) return;
+        ggElement.style.visibility = "visible";
+        finalScoreElement.innerText = score.toString();
+      }
+    });
+  }
+}
+
 function animate() {
   animatePlayer();
   animateScooters();
+  collisionCheck();
   renderer.render(world, camera);
 }

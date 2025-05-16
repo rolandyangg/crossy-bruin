@@ -1,9 +1,16 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/vite.svg"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
     <title>Vite App</title>
     <style>
       /* make sure it’s on top of the canvas */
@@ -15,15 +22,53 @@
         font-family: "Press Start 2P", monospace;
         font-weight: bold;
         font-size: 80px;
-        text-shadow: 0 0 5px black;   
+        text-shadow: 0 0 5px black;
         pointer-events: none; /* clicks “pass through” */
         user-select: none;
+      }
+
+      #gg-container {
+        /* edit later*/
+        position: absolute;
+        min-width: 100%;
+        min-height: 100%;
+        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        visibility: hidden;
+
+        #result {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          background-color: white;
+          padding: 20px;
+        }
+
+        button {
+          background-color: rgb(255, 213, 0);
+          padding: 20px 50px 20px 50px;
+          font-family: inherit;
+          font-size: inherit;
+          cursor: pointer;
+        }
       }
     </style>
   </head>
   <body>
     <canvas class="app"></canvas>
     <div id="score">0</div>
-    <script type="module" src="/src/main.js"></script>
+    <div id="gg-container">
+      <div id="result">
+        <h1>You Missed Class!</h1>
+        <p>Your score: <span id="final-score"></span></p>
+        <button id="retry">Try Again</button>
+      </div>
+    </div>
+    <script
+      type="module"
+      src="/src/main.js"
+    ></script>
   </body>
 </html>
