@@ -3,7 +3,7 @@ import * as THREE from "three";
 // Setup Game
 let position = {
   currRow: 0,
-  currTile: 0
+  currTile: 0,
 };
 let currMove = null;
 let currDirection = 0;
@@ -20,6 +20,8 @@ let score = 0;
 
 let playerBase = []; // Used to store the coords of each player body part
 
+const metadata = [];
+
 const scoreElement = document.getElementById("score");
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,78 +32,78 @@ function Player() {
   const player = new THREE.Group();
 
   // Torso/Sweatshirt (dark blue)
-  const torsoGeometry   = new THREE.BoxGeometry(15, 15, 30);
-  const torsoMaterial   = new THREE.MeshPhongMaterial({ color: "#1f3a93" });
-  const torso           = new THREE.Mesh(torsoGeometry, torsoMaterial);
-  const torsoCoords     = [0, 0, 15];
+  const torsoGeometry = new THREE.BoxGeometry(15, 15, 30);
+  const torsoMaterial = new THREE.MeshPhongMaterial({ color: "#1f3a93" });
+  const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
+  const torsoCoords = [0, 0, 15];
   torso.position.set(...torsoCoords);
   playerBase.push(torsoCoords);
   player.add(torso);
 
   // Shoulder stripe (gold)
-  const shoulderGeometry   = new THREE.BoxGeometry(15, 15, 5);
-  const shoulderMaterial   = new THREE.MeshPhongMaterial({ color: "#ffd966" });
-  const shoulders          = new THREE.Mesh(shoulderGeometry, shoulderMaterial);
-  const shouldersCoords    = [0, 0, 32.5];
+  const shoulderGeometry = new THREE.BoxGeometry(15, 15, 5);
+  const shoulderMaterial = new THREE.MeshPhongMaterial({ color: "#ffd966" });
+  const shoulders = new THREE.Mesh(shoulderGeometry, shoulderMaterial);
+  const shouldersCoords = [0, 0, 32.5];
   shoulders.position.set(...shouldersCoords);
   playerBase.push(shouldersCoords);
   player.add(shoulders);
 
   // Head (skin tone)
-  const headGeometry    = new THREE.BoxGeometry(15, 15, 15);
-  const headMaterial    = new THREE.MeshPhongMaterial({ color: "#ffe3c0" });
-  const head            = new THREE.Mesh(headGeometry, headMaterial);
-  const headCoords      = [0, 0, 42.5];
+  const headGeometry = new THREE.BoxGeometry(15, 15, 15);
+  const headMaterial = new THREE.MeshPhongMaterial({ color: "#ffe3c0" });
+  const head = new THREE.Mesh(headGeometry, headMaterial);
+  const headCoords = [0, 0, 42.5];
   head.position.set(...headCoords);
   playerBase.push(headCoords);
   player.add(head);
 
   // Hair (black)
-  const hairGeometry    = new THREE.BoxGeometry(15, 15, 5);
-  const hairMaterial    = new THREE.MeshPhongMaterial({ color: "black" });
-  const hair            = new THREE.Mesh(hairGeometry, hairMaterial);
-  const hairCoords      = [0, 0, 52.5];
+  const hairGeometry = new THREE.BoxGeometry(15, 15, 5);
+  const hairMaterial = new THREE.MeshPhongMaterial({ color: "black" });
+  const hair = new THREE.Mesh(hairGeometry, hairMaterial);
+  const hairCoords = [0, 0, 52.5];
   hair.position.set(...hairCoords);
   playerBase.push(hairCoords);
   player.add(hair);
 
   // Left arm (skin tone)
-  const armGeometry     = new THREE.BoxGeometry(5, 5, 30);
-  const armMaterial     = new THREE.MeshPhongMaterial({ color: "#ffe3c0" });
-  const leftArm         = new THREE.Mesh(armGeometry, armMaterial);
-  const leftArmCoords   = [-10, 0, 15];
+  const armGeometry = new THREE.BoxGeometry(5, 5, 30);
+  const armMaterial = new THREE.MeshPhongMaterial({ color: "#ffe3c0" });
+  const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+  const leftArmCoords = [-10, 0, 15];
   leftArm.position.set(...leftArmCoords);
   playerBase.push(leftArmCoords);
   player.add(leftArm);
 
   // Right arm (skin tone)
-  const rightArm        = new THREE.Mesh(armGeometry, armMaterial);
-  const rightArmCoords  = [10, 0, 15];
+  const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+  const rightArmCoords = [10, 0, 15];
   rightArm.position.set(...rightArmCoords);
   playerBase.push(rightArmCoords);
   player.add(rightArm);
 
   // Right sleeve (dark blue)
-  const sleeveGeometry  = new THREE.BoxGeometry(7, 7, 10);
-  const sleeveMaterial  = new THREE.MeshPhongMaterial({ color: "#1f3a93" });
-  const rightSleeve     = new THREE.Mesh(sleeveGeometry, sleeveMaterial);
+  const sleeveGeometry = new THREE.BoxGeometry(7, 7, 10);
+  const sleeveMaterial = new THREE.MeshPhongMaterial({ color: "#1f3a93" });
+  const rightSleeve = new THREE.Mesh(sleeveGeometry, sleeveMaterial);
   const rightSleeveCoords = [10, 0, 27];
   rightSleeve.position.set(...rightSleeveCoords);
   playerBase.push(rightSleeveCoords);
   player.add(rightSleeve);
 
   // Left sleeve (dark blue)
-  const leftSleeve      = new THREE.Mesh(sleeveGeometry, sleeveMaterial);
+  const leftSleeve = new THREE.Mesh(sleeveGeometry, sleeveMaterial);
   const leftSleeveCoords = [-10, 0, 27];
   leftSleeve.position.set(...leftSleeveCoords);
   playerBase.push(leftSleeveCoords);
   player.add(leftSleeve);
 
   // Backpack (grey)
-  const packGeometry    = new THREE.BoxGeometry(10, 4, 20);
-  const packMaterial    = new THREE.MeshPhongMaterial({ color: "grey" });
-  const backpack        = new THREE.Mesh(packGeometry, packMaterial);
-  const backpackCoords  = [0, -10, 20];
+  const packGeometry = new THREE.BoxGeometry(10, 4, 20);
+  const packMaterial = new THREE.MeshPhongMaterial({ color: "grey" });
+  const backpack = new THREE.Mesh(packGeometry, packMaterial);
+  const backpackCoords = [0, -10, 20];
   backpack.position.set(...backpackCoords);
   playerBase.push(backpackCoords);
   player.add(backpack);
@@ -113,13 +115,92 @@ function Land(rowIndex) {
   const row = new THREE.Group();
   row.position.y = rowIndex * tileSize;
 
-  const landGeometry = new THREE.BoxGeometry(tilesPerRow * tileSize, tileSize, 3);
+  const landGeometry = new THREE.BoxGeometry(
+    tilesPerRow * tileSize,
+    tileSize,
+    3
+  );
   const landMaterial = new THREE.MeshPhongMaterial({ color: 0xedcea8 });
   const land = new THREE.Mesh(landGeometry, landMaterial);
   land.position.z = 1.5;
   row.add(land);
 
   return row;
+}
+
+function Tree(tileIndex, height) {
+  const tree = new THREE.Group();
+  tree.position.x = tileIndex * tileSize;
+
+  const trunk = new THREE.Mesh(
+    new THREE.BoxGeometry(15, 15, 30),
+    new THREE.MeshLambertMaterial({
+      color: 0x725c42,
+      flatShading: true,
+    })
+  );
+  trunk.position.z = 10;
+  tree.add(trunk);
+
+  const crown = new THREE.Mesh(
+    new THREE.BoxGeometry(30, 30, height),
+    new THREE.MeshLambertMaterial({
+      color: 0x5ca904,
+      flatShading: true,
+    })
+  );
+  crown.position.z = height / 2 + 20;
+  tree.add(crown);
+
+  return tree;
+}
+
+export function addRows() {
+  const newMetadata = buildRows(20);
+
+  const startIndex = metadata.length;
+  metadata.push(...newMetadata);
+
+  newMetadata.forEach((rowData, index) => {
+    const rowIndex = startIndex + index + 1;
+
+    if (rowData.type === "trees") {
+      const row = Land(rowIndex);
+
+      rowData.trees.forEach(({ tileIndex, height }) => {
+        const three = Tree(tileIndex, height);
+        row.add(three);
+      });
+
+      map.add(row);
+    }
+  });
+}
+
+function buildRows(amount) {
+  const rows = [];
+  for (let i = 0; i < amount; i++) {
+    const rowData = buildTrees();
+    rows.push(rowData);
+  }
+  return rows;
+}
+
+function buildTrees() {
+  const occupiedTiles = new Set();
+  const trees = Array.from({ length: 4 }, () => {
+    let tileIndex;
+    do {
+      tileIndex = THREE.MathUtils.randInt(minTile, maxTile);
+    } while (occupiedTiles.has(tileIndex));
+    occupiedTiles.add(tileIndex);
+
+    const height = 45;
+
+    return { tileIndex, height };
+  });
+
+  return { type: "trees", trees };
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +215,14 @@ if (aspectRatio < 1) {
   height = size / aspectRatio;
 }
 
-const camera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, 100, 900);
+const camera = new THREE.OrthographicCamera(
+  width / -2,
+  width / 2,
+  height / 2,
+  height / -2,
+  100,
+  900
+);
 camera.up.set(0, 0, 1); // Make z-axis the up direction
 camera.position.set(200, -300, 350);
 camera.lookAt(0, 0, 0);
@@ -159,6 +247,7 @@ for (let i = 0; i < 10; i++) {
   let land = new Land(i);
   map.add(land);
 }
+addRows();
 world.add(map);
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +257,7 @@ const canvas = document.querySelector("canvas.app");
 const renderer = new THREE.WebGLRenderer({
   alpha: true,
   antialias: true,
-  canvas: canvas
+  canvas: canvas,
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -231,19 +320,24 @@ function animatePlayer() {
   const progress = Math.min(1, playerClock.getElapsedTime() / stepTime);
   player.position.x = THREE.MathUtils.lerp(startX, endX, progress);
   player.position.y = THREE.MathUtils.lerp(startY, endY, progress);
-  player.rotation.z = THREE.MathUtils.lerp(currDirection, endDirection, progress);
+  player.rotation.z = THREE.MathUtils.lerp(
+    currDirection,
+    endDirection,
+    progress
+  );
 
   // Must loop through for z instead of player.position.z else it will move the camera too
   for (let i = 0; i < player.children.length; i++) {
     if (player.children[i].isCamera) continue;
-    player.children[i].position.z = Math.sin(progress * Math.PI) * 10 + playerBase[i][2];
+    player.children[i].position.z =
+      Math.sin(progress * Math.PI) * 10 + playerBase[i][2];
     // console.log(playerBase[i]);
   }
-  
+
   // camera.quaternion.copy(savedQuarternion);
   camera.position.copy(player.position).add(cameraOffset);
   camera.lookAt(player.position);
-  
+
   // Move finished, process it
   if (progress >= 1) {
     switch (currMove) {
