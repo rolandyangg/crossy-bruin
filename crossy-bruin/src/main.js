@@ -17,6 +17,7 @@ const tileSize = 42;
 const cameraOffset = new THREE.Vector3(200, -300, 350);
 
 let score = 0;
+let gameRunning = false;
 
 let playerBase = []; // Used to store the coords of each player body part
 
@@ -469,6 +470,7 @@ function startGame() {
   resetPlayer();
   resetCamera();
   score = 0;
+  gameRunning = true;
   if (scoreElement) scoreElement.innerText = "0";
   if (finalScoreElement) finalScoreElement.innerText = "0";
   if (ggElement) ggElement.style.visibility = "hidden";
@@ -530,6 +532,7 @@ function isValidMove(direction) {
 
 window.addEventListener("keydown", (event) => {
   if (currMove != null) return;
+  if (!gameRunning) return;
 
   let direction;
   if (event.key === "ArrowUp" || event.key === "w" || event.key === " ") {
@@ -679,6 +682,7 @@ function collisionCheck() {
         if (!ggElement || !finalScoreElement) return;
         ggElement.style.visibility = "visible";
         finalScoreElement.innerText = score.toString();
+        gameRunning = false;
       }
     });
   }
