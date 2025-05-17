@@ -13,6 +13,8 @@ export default function Tree(tileIndex, height) {
     })
   );
   trunk.position.z = 10;
+  trunk.castShadow = true;
+  trunk.receiveShadow = true;
   tree.add(trunk);
 
   const crown = new THREE.Mesh(
@@ -23,6 +25,8 @@ export default function Tree(tileIndex, height) {
     })
   );
   crown.position.z = height / 2 + 20;
+  crown.castShadow = true;
+  crown.receiveShadow = true;
   tree.add(crown);
 
   return tree;

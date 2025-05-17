@@ -23,6 +23,7 @@ const playerClock = new THREE.Clock(false);
 const scooterClock = new THREE.Clock();
 
 const cameraOffset = new THREE.Vector3(200, -300, 350);
+const dirLightOffset = new THREE.Vector3(-100, -100, 300);
 
 let score = 0;
 let isGameRunning = false;
@@ -115,9 +116,20 @@ const player = new Player();
 world.add(player);
 world.add(camera);
 
+// Lighting
 world.add(new THREE.AmbientLight());
 const dirLight = new THREE.DirectionalLight();
-dirLight.position.set(-100, -100, 200);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.width = 2048;
+dirLight.shadow.mapSize.height = 2048;
+dirLight.shadow.camera.up.set(0, 0, 1);
+dirLight.shadow.camera.left = -500;
+dirLight.shadow.camera.right = 500;
+dirLight.shadow.camera.top = 500;
+dirLight.shadow.camera.bottom = -500;
+dirLight.shadow.camera.near = 50;
+dirLight.shadow.camera.far = 500;
+dirLight.position.set(-100, -100, 300);
 world.add(dirLight);
 
 const listener = new THREE.AudioListener();
@@ -172,6 +184,8 @@ function startGame() {
   resetMap();
   resetPlayer();
   resetCamera();
+  dirLight.target = player;
+  dirLight.position.copy(player.position).add(dirLightOffset);
   score = 0;
   isGameRunning = true;
   if (scoreElement) scoreElement.innerText = "0";
@@ -192,6 +206,7 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true,
   canvas: canvas,
 });
+renderer.shadowMap.enabled = true;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setAnimationLoop(animate);
@@ -279,6 +294,8 @@ function animatePlayer() {
   }
 
   camera.position.copy(player.position).add(cameraOffset);
+  dirLight.position.copy(player.position).add(dirLightOffset);
+  console.log(dirLight.position);
   camera.lookAt(player.position);
 
   // Move finished, process it

@@ -9,6 +9,7 @@ export default function Land(rowIndex) {
   const landMaterial = new THREE.MeshPhongMaterial({ color: 0xedcea8 });
   const land = new THREE.Mesh(landGeometry, landMaterial);
   land.position.z = 1.5;
+  land.receiveShadow = true;
   row.add(land);
 
   return row;

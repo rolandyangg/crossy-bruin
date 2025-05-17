@@ -10,6 +10,8 @@ export default function Player() {
   const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
   const torsoCoords = [0, 0, 15];
   torso.position.set(...torsoCoords);
+  torso.castShadow = true;
+  torso.receiveShadow = true;
   playerBase.push(torsoCoords);
   player.add(torso);
 
@@ -19,6 +21,8 @@ export default function Player() {
   const shoulders = new THREE.Mesh(shoulderGeometry, shoulderMaterial);
   const shouldersCoords = [0, 0, 32.5];
   shoulders.position.set(...shouldersCoords);
+  shoulders.castShadow = true;
+  shoulders.receiveShadow = true;
   playerBase.push(shouldersCoords);
   player.add(shoulders);
 
@@ -28,6 +32,8 @@ export default function Player() {
   const head = new THREE.Mesh(headGeometry, headMaterial);
   const headCoords = [0, 0, 42.5];
   head.position.set(...headCoords);
+  head.castShadow = true;
+  head.receiveShadow = true;
   playerBase.push(headCoords);
   player.add(head);
 
@@ -37,6 +43,8 @@ export default function Player() {
   const hair = new THREE.Mesh(hairGeometry, hairMaterial);
   const hairCoords = [0, 0, 52.5];
   hair.position.set(...hairCoords);
+  hair.castShadow = true;
+  hair.receiveShadow = true;
   playerBase.push(hairCoords);
   player.add(hair);
 
@@ -46,6 +54,8 @@ export default function Player() {
   const leftArm = new THREE.Mesh(armGeometry, armMaterial);
   const leftArmCoords = [-10, 0, 15];
   leftArm.position.set(...leftArmCoords);
+  leftArm.castShadow = true;
+  leftArm.receiveShadow = true;
   playerBase.push(leftArmCoords);
   player.add(leftArm);
 
@@ -53,6 +63,8 @@ export default function Player() {
   const rightArm = new THREE.Mesh(armGeometry, armMaterial);
   const rightArmCoords = [10, 0, 15];
   rightArm.position.set(...rightArmCoords);
+  rightArm.castShadow = true;
+  rightArm.receiveShadow = true;
   playerBase.push(rightArmCoords);
   player.add(rightArm);
 
@@ -62,6 +74,8 @@ export default function Player() {
   const rightSleeve = new THREE.Mesh(sleeveGeometry, sleeveMaterial);
   const rightSleeveCoords = [10, 0, 27];
   rightSleeve.position.set(...rightSleeveCoords);
+  rightSleeve.castShadow = true;
+  rightSleeve.receiveShadow = true;
   playerBase.push(rightSleeveCoords);
   player.add(rightSleeve);
 
@@ -69,6 +83,8 @@ export default function Player() {
   const leftSleeve = new THREE.Mesh(sleeveGeometry, sleeveMaterial);
   const leftSleeveCoords = [-10, 0, 27];
   leftSleeve.position.set(...leftSleeveCoords);
+  leftSleeve.castShadow = true;
+  leftSleeve.receiveShadow = true;
   playerBase.push(leftSleeveCoords);
   player.add(leftSleeve);
 
@@ -78,6 +94,8 @@ export default function Player() {
   const backpack = new THREE.Mesh(packGeometry, packMaterial);
   const backpackCoords = [0, -10, 20];
   backpack.position.set(...backpackCoords);
+  backpack.castShadow = true;
+  backpack.receiveShadow = true;
   playerBase.push(backpackCoords);
   player.add(backpack);
 
