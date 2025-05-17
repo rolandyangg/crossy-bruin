@@ -10,7 +10,7 @@ export function buildTrees() {
     } while (occupiedTiles.has(tileIndex));
     occupiedTiles.add(tileIndex);
 
-    const height = 45;
+    const height = 20 + Math.floor(Math.random() * 31);
 
     return { tileIndex, height };
   });

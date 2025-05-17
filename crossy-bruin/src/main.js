@@ -31,6 +31,9 @@ const scoreElement = document.getElementById("score");
 const ggElement = document.getElementById("gg-container");
 const finalScoreElement = document.getElementById("final-score");
 
+const jumpSoundPath = "./src/sounds/jump.mp3"
+const crashSoundPaths = ["./src/sounds/crash1.mp3", './src/sounds/crash2.mp3', './src/sounds/crash3.mp3']
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 export function addRows() {
@@ -117,6 +120,25 @@ const dirLight = new THREE.DirectionalLight();
 dirLight.position.set(-100, -100, 200);
 world.add(dirLight);
 
+const listener = new THREE.AudioListener();
+camera.add(listener);
+const jumpSound = new THREE.Audio(listener);
+new THREE.AudioLoader().load(jumpSoundPath, buf => {
+  jumpSound.setBuffer(buf);
+  jumpSound.setLoop(false);
+  jumpSound.setVolume(1);
+});
+const crashSounds = []
+for (let i = 0; i < crashSoundPaths.length; i++) {
+  let crashSound = new THREE.Audio(listener);
+  new THREE.AudioLoader().load(crashSoundPaths[i], buf => {
+    crashSound.setBuffer(buf);
+    crashSound.setLoop(false);
+    crashSound.setVolume(0.5);
+  });
+  crashSounds.push(crashSound);
+}
+
 const map = new THREE.Group();
 
 world.add(map);
@@ -178,6 +200,8 @@ renderer.setAnimationLoop(animate);
 
 function move(direction) {
   currMove = direction;
+  if (jumpSound.isPlaying) jumpSound.stop();
+  jumpSound.play();
   console.log(currMove + " started");
 }
 
@@ -250,7 +274,7 @@ function animatePlayer() {
   // Must loop through for z instead of player.position.z else it will move the camera too
   for (let i = 0; i < player.children.length; i++) {
     if (player.children[i].isCamera) continue;
-    player.children[i].position.z = Math.sin(progress * Math.PI) * 10 + playerBase[i][2];
+    player.children[i].position.z = Math.sin(progress * Math.PI) * 20 + playerBase[i][2];
     // console.log(playerBase[i]);
   }
 
@@ -330,9 +354,13 @@ function collisionCheck() {
       if (playerBoundingBox.intersectsBox(scooterBoundingBox)) {
         if (!ggElement || !finalScoreElement) return;
         ggElement.style.visibility = "visible";
+        if (isGameRunning) {
+          let currCrashSound = crashSounds[Math.floor(Math.random() * crashSoundPaths.length)];
+          if (currCrashSound.isPlaying) currCrashSound.stop();
+          currCrashSound.play();
+        }
         isGameRunning = false;
         finalScoreElement.innerText = score.toString();
-        gameRunning = false;
       }
     });
   }
