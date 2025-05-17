@@ -159,7 +159,7 @@ function resetMap() {
   metadata.length = 0;
   map.remove(...map.children);
 
-  for (let rowIndex = 0; rowIndex > -4; rowIndex--) {
+  for (let rowIndex = 0; rowIndex > -15; rowIndex--) {
     const land = Land(rowIndex);
     map.add(land);
   }
