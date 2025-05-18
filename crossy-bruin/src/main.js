@@ -1,14 +1,16 @@
 import * as THREE from "three";
 import { minTile, maxTile, tileSize, shirtPalette, skinTones } from "./exports/globals";
-import { buildScooters, buildTrees } from "./exports/helpers/objectBuilders.js";
+import { buildScooters, buildTrees, buildCoins } from "./exports/helpers/objectBuilders.js";
 import Scooter from "./exports/models/Scooter.js";
 import Player from "./exports/models/Player.js";
 import playerBase from "./exports/playerBase.js";
 import Land from "./exports/models/Land.js";
 import Road from "./exports/models/Road.js";
 import Tree from "./exports/models/Tree.js";
+import Coin from "./exports/models/Coin.js";
 import isValidMove from "./exports/helpers/isValidMove.js";
 import metadata from "./exports/metadata.js";
+import { mx_bilerp_1 } from "three/src/nodes/materialx/lib/mx_noise.js";
 
 // Setup Game
 let position = {
@@ -26,14 +28,20 @@ const cameraOffset = new THREE.Vector3(200, -300, 350);
 const dirLightOffset = new THREE.Vector3(-100, -100, 300);
 
 let score = 0;
+let coins = 0;
 let isGameRunning = false;
 
 const scoreElement = document.getElementById("score");
 const ggElement = document.getElementById("gg-container");
 const finalScoreElement = document.getElementById("final-score");
+const coinsElement = document.getElementById("coins");
 
 const jumpSoundPath = "./src/sounds/jump.mp3"
 const crashSoundPaths = ["./src/sounds/crash1.mp3", './src/sounds/crash2.mp3', './src/sounds/crash3.mp3']
+const coinSoundPath = "./src/sounds/coin.mp3";
+
+// We need an array for coins because each coin can be at a different point in their animation at a time
+const coinMetadata = [] // Each element: { model, coinTimer }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -45,19 +53,18 @@ export function addRows() {
 
   newMetadata.forEach((rowData, index) => {
     const rowIndex = startIndex + index + 1;
+    let row;
 
     if (rowData.type === "trees") {
-      const row = Land(rowIndex);
+      row = Land(rowIndex);
 
       rowData.trees.forEach(({ tileIndex, height }) => {
         const tree = Tree(tileIndex, height);
         row.add(tree);
       });
-
-      map.add(row);
     }
     if (rowData.type === "scooter") {
-      const row = Road(rowIndex);
+      row = Road(rowIndex);
 
       rowData.scooters.forEach(({ tileIndex }, index) => {
         let shirtColor = shirtPalette[Math.floor(Math.random() * shirtPalette.length)];
@@ -75,15 +82,24 @@ export function addRows() {
 
         row.add(scooter);
       });
-      map.add(row);
     }
+    // Add coins
+    for (let i = 0; i < rowData.coins.length; i++) {
+      // console.log(rowData.coins[i]);
+      const coin = new Coin();
+      coin.position.set(rowData.coins[i].tileIndex * tileSize, 0, 5);
+      rowData.coins[i].ref = coin;
+      row.add(coin);
+    }
+    map.add(row);
   });
 }
 
 function buildRows(amount) {
   const rows = [];
   for (let i = 0; i < amount; i++) {
-    const rowData = Math.random() < 0.5 ? buildScooters() : buildTrees();
+    let rowData = Math.random() < 0.5 ? buildScooters() : buildTrees();
+    rowData = buildCoins(rowData);
     rows.push(rowData);
   }
   return rows;
@@ -150,6 +166,12 @@ for (let i = 0; i < crashSoundPaths.length; i++) {
   });
   crashSounds.push(crashSound);
 }
+const coinSound = new THREE.Audio(listener);
+new THREE.AudioLoader().load(coinSoundPath, buf => {
+  coinSound.setBuffer(buf);
+  coinSound.setLoop(false);
+  coinSound.setVolume(0.5);
+});
 
 const map = new THREE.Group();
 
@@ -295,7 +317,6 @@ function animatePlayer() {
 
   camera.position.copy(player.position).add(cameraOffset);
   dirLight.position.copy(player.position).add(dirLightOffset);
-  console.log(dirLight.position);
   camera.lookAt(player.position);
 
   // Move finished, process it
@@ -354,6 +375,30 @@ export function animateScooters() {
   });
 }
 
+export function animateCoins() {
+  for (let i = 0; i < coinMetadata.length; i++) {
+    let timer = coinMetadata[i].timer;
+    let coin = coinMetadata[i].model;
+    if (!timer.running) timer.start();
+
+    const stepTime = 0.2; // Seconds it takes to take a step
+    const progress1 = Math.min(1, timer.getElapsedTime() / stepTime);
+    const progress2 = timer.getElapsedTime() / stepTime;
+
+    if (progress1 <= 1) {
+      coin.position.z = THREE.MathUtils.lerp(5, 100, progress1);
+      coin.rotation.x = THREE.MathUtils.lerp(0, 5 * Math.PI / 2, progress1);
+      coin.rotation.y = THREE.MathUtils.lerp(0, 2 * Math.PI, progress1);
+    }
+    if (progress2 >= 3) {
+      console.log("Done!");
+      coinMetadata.splice(i, 1);
+      console.log(coinMetadata);
+      coin.parent.remove(coin);
+    }
+  }
+}
+
 function collisionCheck() {
   const rowData = metadata[position.currRow - 1];
   if (!rowData) return;
@@ -381,11 +426,27 @@ function collisionCheck() {
       }
     });
   }
+
+  for (let i = 0; i < rowData.coins.length; i++) {
+    if (position.currTile == rowData.coins[i].tileIndex) {
+      if (coinSound.isPlaying) coinSound.stop();
+      coinSound.play();
+      coins += 1;
+      coinsElement.innerText = coins;
+
+      const coinModel = rowData.coins[i].ref;
+      coinMetadata.push({ model: coinModel, timer: new THREE.Clock(false) });
+      rowData.coins.splice(i, 1);
+
+      break;
+    }
+  }
 }
 
 function animate() {
   animatePlayer();
   animateScooters();
+  animateCoins();
   collisionCheck();
   renderer.render(world, camera);
 }

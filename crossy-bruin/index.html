@@ -27,6 +27,19 @@
         user-select: none;
       }
 
+      #coins {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: gold;
+        font-family: "Press Start 2P", monospace;
+        font-weight: bold;
+        font-size: 80px;
+        text-shadow: 0 0 5px black;
+        pointer-events: none; /* clicks “pass through” */
+        user-select: none;
+      }
+
       #gg-container {
         /* edit later*/
         position: absolute;
@@ -60,6 +73,7 @@
   <body>
     <canvas class="app"></canvas>
     <div id="score">0</div>
+    <div id="coins">0</div>
     <div id="gg-container">
       <div id="result">
         <h1>You Missed Class!</h1>

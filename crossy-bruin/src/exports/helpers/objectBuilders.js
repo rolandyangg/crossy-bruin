@@ -15,7 +15,7 @@ export function buildTrees() {
     return { tileIndex, height };
   });
 
-  return { type: "trees", trees };
+  return { type: "trees", trees, occupiedTiles };
 }
 
 export function buildScooters() {
@@ -33,5 +33,20 @@ export function buildScooters() {
     return { tileIndex };
   });
 
-  return { type: "scooter", direction, speed, scooters };
+  return { type: "scooter", direction, speed, scooters, occupiedTiles };
+}
+
+export function buildCoins(rowData) {
+  // Select 1 to 3 random spots to put coins 
+  const coins = Array.from({ length: Math.floor(Math.random() * 3) }, () => {
+  let tileIndex;
+  do {
+    tileIndex = THREE.MathUtils.randInt(minTile, maxTile);
+  } while (rowData.occupiedTiles.has(tileIndex));
+    rowData.occupiedTiles.add(tileIndex);
+    let ref = null;
+    return { tileIndex, ref };
+  });
+
+  return { ...rowData, coins }
 }
