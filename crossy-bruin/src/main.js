@@ -11,6 +11,7 @@ import {
   buildTrees,
   buildCoins,
   buildStudents,
+  buildRobots,
 } from "./exports/helpers/objectBuilders.js";
 import Scooter from "./exports/models/Scooter.js";
 import Player from "./exports/models/Player.js";
@@ -25,6 +26,7 @@ import metadata from "./exports/metadata.js";
 import { mx_bilerp_1 } from "three/src/nodes/materialx/lib/mx_noise.js";
 import Sidewalk from "./exports/models/Sidewalk.js";
 import Rock from "./exports/models/Rock.js";
+import StarshipRobot from "./exports/models/Starship.js";
 
 // Setup Game
 let position = {
@@ -38,6 +40,7 @@ let currDirection = 0;
 const playerClock = new THREE.Clock(false);
 const scooterClock = new THREE.Clock();
 const studentClock = new THREE.Clock();
+const robotClock = new THREE.Clock();
 
 const cameraOffset = new THREE.Vector3(200, -300, 350);
 const dirLightOffset = new THREE.Vector3(-100, -100, 300);
@@ -144,6 +147,27 @@ export function addRows() {
         rowData.students[index].ref = student;
         row.add(student);
       });
+    } else if (rowData.type === "robot") {
+      const isRoad = Math.random() < 0.5;
+      if (isRoad) {
+        row = Road(rowIndex);
+      } else {
+        row = Sidewalk(rowIndex);
+      }
+
+      // Road’s top sits at z = 3
+      // Sidewalk’s top sits at z = 1.5
+      const groundZ = isRoad ? 3 : 1.5;
+
+      rowData.robots.forEach((robotData, i) => {
+        const { tileIndex } = robotData;
+        const robot = new StarshipRobot(tileIndex, rowData.direction);
+        robot.position.set(tileIndex * tileSize, 0, groundZ);
+        robot.userData.speed = rowData.speed;
+        robot.userData.direction = rowData.direction;
+        robotData.ref = robot;
+        row.add(robot);
+      });
     }
 
     // Add coins
@@ -164,12 +188,14 @@ function buildRows(amount) {
     let rowData;
     const rand = Math.random();
 
-    if (rand < 0.4) {
+    if (rand < 0.35) {
       rowData = buildTrees();
-    } else if (rand < 0.75) {
+    } else if (rand < 0.65) {
       rowData = buildScooters();
-    } else {
+    } else if (rand < 0.9) {
       rowData = buildStudents();
+    } else {
+      rowData = buildRobots();
     }
     rowData = buildCoins(rowData);
     rows.push(rowData);
@@ -532,6 +558,31 @@ export function animateCoins() {
   }
 }
 
+export function animateRobots() {
+  const dt = robotClock.getDelta();
+  const leftBound = (minTile - 2) * tileSize;
+  const rightBound = (maxTile + 2) * tileSize;
+
+  metadata.forEach((rowData) => {
+    if (rowData.type !== "robot") return;
+
+    rowData.robots.forEach(({ ref }) => {
+      if (!ref) return;
+      if (rowData.direction === 1) {
+        ref.position.x =
+          ref.position.x > rightBound
+            ? leftBound
+            : ref.position.x + rowData.speed * dt;
+      } else {
+        ref.position.x =
+          ref.position.x < leftBound
+            ? rightBound
+            : ref.position.x - rowData.speed * dt;
+      }
+    });
+  });
+}
+
 function collisionCheck() {
   const rowData = metadata[position.currRow - 1];
   if (!rowData) return;
@@ -591,6 +642,25 @@ function collisionCheck() {
       }
     });
   }
+  if (rowData.type === "robot") {
+    const playerBox = new THREE.Box3().setFromObject(player);
+    rowData.robots.forEach(({ ref }) => {
+      if (!ref) return;
+      const robotBox = new THREE.Box3().setFromObject(ref);
+      if (playerBox.intersectsBox(robotBox)) {
+        if (!ggElement || !finalScoreElement) return;
+        ggElement.style.visibility = "visible";
+        if (isGameRunning) {
+          let crashSound =
+            crashSounds[Math.floor(Math.random() * crashSoundPaths.length)];
+          if (crashSound.isPlaying) crashSound.stop();
+          crashSound.play();
+        }
+        isGameRunning = false;
+        finalScoreElement.innerText = score.toString();
+      }
+    });
+  }
 
   for (let i = 0; i < rowData.coins.length; i++) {
     if (position.currTile == rowData.coins[i].tileIndex) {
@@ -613,6 +683,7 @@ function animate() {
   animateScooters();
   animateStudents();
   animateCoins();
+  animateRobots();
   collisionCheck();
   renderer.render(world, camera);
 }

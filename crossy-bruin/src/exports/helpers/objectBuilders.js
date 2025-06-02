@@ -79,3 +79,24 @@ export function buildStudents() {
     coins: [],
   };
 }
+
+export function buildRobots() {
+  const direction = Math.random() < 0.5 ? 1 : -1;
+  const speed = Math.random() * 50 + 80;
+
+  const occupiedTiles = new Set();
+  // spawn 1 or 2 robots
+  const robots = Array.from(
+    { length: 1 + Math.floor(Math.random() * 2) },
+    () => {
+      let tileIndex;
+      do {
+        tileIndex = THREE.MathUtils.randInt(minTile, maxTile);
+      } while (occupiedTiles.has(tileIndex));
+      occupiedTiles.add(tileIndex);
+      return { tileIndex, ref: null };
+    }
+  );
+
+  return { type: "robot", direction, speed, robots, occupiedTiles, coins: [] };
+}
