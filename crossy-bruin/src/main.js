@@ -288,9 +288,11 @@ function startGame() {
   dirLight.target = player;
   dirLight.position.copy(player.position).add(dirLightOffset);
   score = 0;
+  coins = 0;
   isGameRunning = true;
   if (scoreElement) scoreElement.innerText = "0";
   if (finalScoreElement) finalScoreElement.innerText = "0";
+  if (coinsElement) coinsElement.innerText = "0";
   if (ggElement) ggElement.style.visibility = "hidden";
 }
 
