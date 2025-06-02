@@ -24,6 +24,7 @@ import isValidMove from "./exports/helpers/isValidMove.js";
 import metadata from "./exports/metadata.js";
 import { mx_bilerp_1 } from "three/src/nodes/materialx/lib/mx_noise.js";
 import Sidewalk from "./exports/models/Sidewalk.js";
+import Rock from "./exports/models/Rock.js";
 
 // Setup Game
 let position = {
@@ -79,6 +80,18 @@ export function addRows() {
         const tree = Tree(tileIndex, height);
         row.add(tree);
       });
+
+      const numRocks = Math.floor(Math.random() * 3) + 1; // 1, 2, or 3
+      for (let i = 0; i < numRocks; i++) {
+        let rockTile;
+        do {
+          rockTile = THREE.MathUtils.randInt(minTile, maxTile);
+        } while (rowData.occupiedTiles.has(rockTile));
+        rowData.occupiedTiles.add(rockTile);
+
+        const rock = new Rock(rockTile);
+        row.add(rock);
+      }
     } else if (rowData.type === "scooter") {
       row = Road(rowIndex);
 

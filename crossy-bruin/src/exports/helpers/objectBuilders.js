@@ -37,16 +37,21 @@ export function buildScooters() {
 }
 
 export function buildCoins(rowData) {
-  // Select 1 to 3 random spots to put coins
-  const coins = Array.from({ length: Math.floor(Math.random() * 3) }, () => {
+  // selects 0-2 places to put coins
+  const numCoins = Math.floor(Math.random() * 3);
+
+  const coins = [];
+  const usedTiles = new Set();
+
+  for (let i = 0; i < numCoins; i++) {
     let tileIndex;
     do {
       tileIndex = THREE.MathUtils.randInt(minTile, maxTile);
-    } while (rowData.occupiedTiles.has(tileIndex));
-    rowData.occupiedTiles.add(tileIndex);
-    let ref = null;
-    return { tileIndex, ref };
-  });
+    } while (rowData.occupiedTiles.has(tileIndex) || usedTiles.has(tileIndex));
+
+    usedTiles.add(tileIndex);
+    coins.push({ tileIndex, ref: null });
+  }
 
   return { ...rowData, coins };
 }

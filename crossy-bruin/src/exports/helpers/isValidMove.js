@@ -20,14 +20,23 @@ export default function isValidMove(direction, currRow, currTile) {
   }
 
   // border detection
-  if (newPosition.row <= -1 || newPosition.tile < minTile || newPosition.tile > maxTile) {
+  if (
+    newPosition.row <= -1 ||
+    newPosition.tile < minTile ||
+    newPosition.tile > maxTile
+  ) {
     return false;
   }
 
-  // tree detection
-  const newRow = metadata[newPosition.row - 1];
+  // obstacle detection
+  const rowData = metadata[newPosition.row - 1];
 
-  if (newRow && newRow.type == "trees" && newRow.trees.some((tree) => tree.tileIndex == newPosition.tile)) {
+  if (
+    rowData &&
+    rowData.type === "trees" &&
+    rowData.occupiedTiles &&
+    rowData.occupiedTiles.has(newPosition.tile)
+  ) {
     return false;
   }
 
