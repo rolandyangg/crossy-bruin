@@ -37,16 +37,40 @@ export function buildScooters() {
 }
 
 export function buildCoins(rowData) {
-  // Select 1 to 3 random spots to put coins 
+  // Select 1 to 3 random spots to put coins
   const coins = Array.from({ length: Math.floor(Math.random() * 3) }, () => {
-  let tileIndex;
-  do {
-    tileIndex = THREE.MathUtils.randInt(minTile, maxTile);
-  } while (rowData.occupiedTiles.has(tileIndex));
+    let tileIndex;
+    do {
+      tileIndex = THREE.MathUtils.randInt(minTile, maxTile);
+    } while (rowData.occupiedTiles.has(tileIndex));
     rowData.occupiedTiles.add(tileIndex);
     let ref = null;
     return { tileIndex, ref };
   });
 
-  return { ...rowData, coins }
+  return { ...rowData, coins };
+}
+
+export function buildStudents() {
+  const direction = Math.random() < 0.5 ? 1 : -1;
+  const speed = Math.random() * 30 + 50;
+  const occupiedTiles = new Set();
+
+  const students = Array.from({ length: 2 }, () => {
+    let tileIndex;
+    do {
+      tileIndex = THREE.MathUtils.randInt(minTile, maxTile);
+    } while (occupiedTiles.has(tileIndex));
+    occupiedTiles.add(tileIndex);
+    return { tileIndex };
+  });
+
+  return {
+    type: "student",
+    direction,
+    speed,
+    students,
+    occupiedTiles,
+    coins: [],
+  };
 }
