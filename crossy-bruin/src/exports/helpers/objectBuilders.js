@@ -37,16 +37,66 @@ export function buildScooters() {
 }
 
 export function buildCoins(rowData) {
-  // Select 1 to 3 random spots to put coins 
-  const coins = Array.from({ length: Math.floor(Math.random() * 3) }, () => {
-  let tileIndex;
-  do {
-    tileIndex = THREE.MathUtils.randInt(minTile, maxTile);
-  } while (rowData.occupiedTiles.has(tileIndex));
-    rowData.occupiedTiles.add(tileIndex);
-    let ref = null;
-    return { tileIndex, ref };
+  // selects 0-2 places to put coins
+  const numCoins = Math.floor(Math.random() * 3);
+
+  const coins = [];
+  const usedTiles = new Set();
+
+  for (let i = 0; i < numCoins; i++) {
+    let tileIndex;
+    do {
+      tileIndex = THREE.MathUtils.randInt(minTile, maxTile);
+    } while (rowData.occupiedTiles.has(tileIndex) || usedTiles.has(tileIndex));
+
+    usedTiles.add(tileIndex);
+    coins.push({ tileIndex, ref: null });
+  }
+
+  return { ...rowData, coins };
+}
+
+export function buildStudents() {
+  const direction = Math.random() < 0.5 ? 1 : -1;
+  const speed = Math.random() * 30 + 50;
+  const occupiedTiles = new Set();
+
+  const students = Array.from({ length: 2 }, () => {
+    let tileIndex;
+    do {
+      tileIndex = THREE.MathUtils.randInt(minTile, maxTile);
+    } while (occupiedTiles.has(tileIndex));
+    occupiedTiles.add(tileIndex);
+    return { tileIndex };
   });
 
-  return { ...rowData, coins }
+  return {
+    type: "student",
+    direction,
+    speed,
+    students,
+    occupiedTiles,
+    coins: [],
+  };
+}
+
+export function buildRobots() {
+  const direction = Math.random() < 0.5 ? 1 : -1;
+  const speed = Math.random() * 50 + 80;
+
+  const occupiedTiles = new Set();
+  // spawn 1 or 2 robots
+  const robots = Array.from(
+    { length: 1 + Math.floor(Math.random() * 2) },
+    () => {
+      let tileIndex;
+      do {
+        tileIndex = THREE.MathUtils.randInt(minTile, maxTile);
+      } while (occupiedTiles.has(tileIndex));
+      occupiedTiles.add(tileIndex);
+      return { tileIndex, ref: null };
+    }
+  );
+
+  return { type: "robot", direction, speed, robots, occupiedTiles, coins: [] };
 }
