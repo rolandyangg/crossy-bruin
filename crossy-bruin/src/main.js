@@ -596,7 +596,7 @@ export function animateCamera() {
   const dt = cameraClock.getDelta(); 
 
   const baseSpeed = tileSize * 0.5;
-  const speedFactor = tileSize * 0.1; // additional tile speed per 1 point of score
+  const speedFactor = tileSize * 0.03; // additional tile speed per 1 point of score
   const cameraSpeed = baseSpeed + score * speedFactor; 
 
   const driftY = camera.position.y + cameraSpeed * dt; 
