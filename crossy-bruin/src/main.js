@@ -422,6 +422,12 @@ function animatePlayer() {
     progress
   );
 
+  dirLight.position.copy(player.position).add(dirLightOffset);
+
+  //    - Make sure the shadow camera also recenters on that new light position:
+  dirLight.shadow.camera.position.copy(dirLight.position);
+  dirLight.shadow.camera.updateProjectionMatrix();
+  
   // Must loop through for z instead of player.position.z else it will move the camera too
   for (let i = 0; i < player.children.length; i++) {
     if (player.children[i].isCamera) continue;
@@ -429,10 +435,6 @@ function animatePlayer() {
       Math.sin(progress * Math.PI) * 20 + playerBase[i][2];
     // console.log(playerBase[i]);
   }
-
-  // camera.position.copy(player.position).add(cameraOffset);
-  // dirLight.position.copy(player.position).add(dirLightOffset);
-  // camera.lookAt(player.position);
 
   // Move finished, process it
   if (progress >= 1) {
