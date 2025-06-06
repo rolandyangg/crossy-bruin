@@ -18,9 +18,9 @@ export function buildTrees() {
   return { type: "trees", trees, occupiedTiles };
 }
 
-export function buildScooters() {
+export function buildScooters(score) {
   const direction = Math.random() < 0.5 ? 1 : -1;
-  const speed = Math.random() * 40 + 120;
+  const speed = Math.random() * (40 + 2 * score) + 120;
 
   const occupiedTiles = new Set();
   const scooters = Array.from({ length: 2 }, () => {
@@ -56,9 +56,9 @@ export function buildCoins(rowData) {
   return { ...rowData, coins };
 }
 
-export function buildStudents() {
+export function buildStudents(score) {
   const direction = Math.random() < 0.5 ? 1 : -1;
-  const speed = Math.random() * 30 + 50;
+  const speed = Math.random() * (30 + 2 * score) + 50;
   const occupiedTiles = new Set();
 
   const students = Array.from({ length: 2 }, () => {
@@ -80,9 +80,9 @@ export function buildStudents() {
   };
 }
 
-export function buildRobots() {
+export function buildRobots(score) {
   const direction = Math.random() < 0.5 ? 1 : -1;
-  const speed = Math.random() * 50 + 80;
+  const speed = Math.random() * (50 + 2 * score) + 80;
 
   const occupiedTiles = new Set();
   // spawn 1 or 2 robots

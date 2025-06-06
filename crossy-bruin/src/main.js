@@ -45,10 +45,12 @@ const robotClock = new THREE.Clock();
 const cameraOffset = new THREE.Vector3(200, -300, 350);
 const dirLightOffset = new THREE.Vector3(-100, -100, 300);
 
+let highScore = 0;
 let score = 0;
 let coins = 0;
 let isGameRunning = false;
 
+const highScoreElement = document.getElementById("high-score")
 const scoreElement = document.getElementById("score");
 const ggElement = document.getElementById("gg-container");
 const finalScoreElement = document.getElementById("final-score");
@@ -191,11 +193,11 @@ function buildRows(amount) {
     if (rand < 0.35) {
       rowData = buildTrees();
     } else if (rand < 0.65) {
-      rowData = buildScooters();
+      rowData = buildScooters(score);
     } else if (rand < 0.9) {
-      rowData = buildStudents();
+      rowData = buildStudents(score);
     } else {
-      rowData = buildRobots();
+      rowData = buildRobots(score);
     }
     rowData = buildCoins(rowData);
     rows.push(rowData);
@@ -459,8 +461,12 @@ function animatePlayer() {
     // console.log(position);
     console.log(currMove + " finished");
 
-    if (position.currRow > score) score = position.currRow;
+    if (position.currRow > score) {
+      score = position.currRow
+      highScore = Math.max(highScore, score)
+    };
     scoreElement.textContent = score;
+    highScoreElement.textContent = highScore
 
     if (position.currRow > metadata.length - 10) addRows();
     currMove = null;
