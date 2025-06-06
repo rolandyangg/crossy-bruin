@@ -37,6 +37,7 @@ let position = {
 let currMove = null;
 let currDirection = 0;
 
+const cameraClock = new THREE.Clock()
 const playerClock = new THREE.Clock(false);
 const scooterClock = new THREE.Clock();
 const studentClock = new THREE.Clock();
@@ -45,10 +46,12 @@ const robotClock = new THREE.Clock();
 const cameraOffset = new THREE.Vector3(200, -300, 350);
 const dirLightOffset = new THREE.Vector3(-100, -100, 300);
 
+let highScore = 0;
 let score = 0;
 let coins = 0;
 let isGameRunning = false;
 
+const highScoreElement = document.getElementById("high-score")
 const scoreElement = document.getElementById("score");
 const ggElement = document.getElementById("gg-container");
 const finalScoreElement = document.getElementById("final-score");
@@ -191,11 +194,11 @@ function buildRows(amount) {
     if (rand < 0.35) {
       rowData = buildTrees();
     } else if (rand < 0.65) {
-      rowData = buildScooters();
+      rowData = buildScooters(score);
     } else if (rand < 0.9) {
-      rowData = buildStudents();
+      rowData = buildStudents(score);
     } else {
-      rowData = buildRobots();
+      rowData = buildRobots(score);
     }
     rowData = buildCoins(rowData);
     rows.push(rowData);
@@ -419,6 +422,12 @@ function animatePlayer() {
     progress
   );
 
+  dirLight.position.copy(player.position).add(dirLightOffset);
+
+  //    - Make sure the shadow camera also recenters on that new light position:
+  dirLight.shadow.camera.position.copy(dirLight.position);
+  dirLight.shadow.camera.updateProjectionMatrix();
+
   // Must loop through for z instead of player.position.z else it will move the camera too
   for (let i = 0; i < player.children.length; i++) {
     if (player.children[i].isCamera) continue;
@@ -426,10 +435,6 @@ function animatePlayer() {
       Math.sin(progress * Math.PI) * 20 + playerBase[i][2];
     // console.log(playerBase[i]);
   }
-
-  camera.position.copy(player.position).add(cameraOffset);
-  dirLight.position.copy(player.position).add(dirLightOffset);
-  camera.lookAt(player.position);
 
   // Move finished, process it
   if (progress >= 1) {
@@ -459,8 +464,12 @@ function animatePlayer() {
     // console.log(position);
     console.log(currMove + " finished");
 
-    if (position.currRow > score) score = position.currRow;
+    if (position.currRow > score) {
+      score = position.currRow
+      highScore = Math.max(highScore, score)
+    };
     scoreElement.textContent = score;
+    highScoreElement.textContent = highScore
 
     if (position.currRow > metadata.length - 10) addRows();
     currMove = null;
@@ -583,6 +592,40 @@ export function animateRobots() {
   });
 }
 
+export function animateCamera() {
+  const dt = cameraClock.getDelta(); 
+
+  const baseSpeed = tileSize * 0.5;
+  const speedFactor = tileSize * 0.03; // additional tile speed per 1 point of score
+  const cameraSpeed = baseSpeed + score * speedFactor; 
+
+  const driftY = camera.position.y + cameraSpeed * dt; 
+
+  // move camera if player moving ahead
+  const playerY = player.position.y;
+
+  const desiredCamY = Math.max(driftY, playerY + cameraOffset.y);
+
+  if (desiredCamY > camera.position.y) {
+    camera.position.y = desiredCamY;
+  }
+
+  if (playerY < camera.position.y - 50) {
+    if (!ggElement || !finalScoreElement) return;
+    ggElement.style.visibility = "visible";
+
+    if (isGameRunning) {
+      const crashSound =
+        crashSounds[Math.floor(Math.random() * crashSoundPaths.length)];
+      if (crashSound.isPlaying) crashSound.stop();
+      crashSound.play();
+    }
+
+    isGameRunning = false;
+    finalScoreElement.innerText = score.toString();
+  }
+}
+
 function collisionCheck() {
   const rowData = metadata[position.currRow - 1];
   if (!rowData) return;
@@ -684,6 +727,9 @@ function animate() {
   animateStudents();
   animateCoins();
   animateRobots();
+  if(isGameRunning){
+    animateCamera();
+  }
   collisionCheck();
   renderer.render(world, camera);
 }
