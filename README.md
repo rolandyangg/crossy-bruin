@@ -10,6 +10,12 @@ Built on Three.js
 
 ## How to Run
 
+### Public
+
+Play at [https://crossy-bruin.vercel.app/](https://crossy-bruin.vercel.app/)
+
+### Local
+
 Pull the repository. `git pull https://github.com/rolandyangg/crossy-bruin.git`
 
 cd into the folder `crossy-bruin`
