@@ -37,6 +37,7 @@ let position = {
 let currMove = null;
 let currDirection = 0;
 
+const cameraClock = new THREE.Clock()
 const playerClock = new THREE.Clock(false);
 const scooterClock = new THREE.Clock();
 const studentClock = new THREE.Clock();
@@ -429,9 +430,9 @@ function animatePlayer() {
     // console.log(playerBase[i]);
   }
 
-  camera.position.copy(player.position).add(cameraOffset);
-  dirLight.position.copy(player.position).add(dirLightOffset);
-  camera.lookAt(player.position);
+  // camera.position.copy(player.position).add(cameraOffset);
+  // dirLight.position.copy(player.position).add(dirLightOffset);
+  // camera.lookAt(player.position);
 
   // Move finished, process it
   if (progress >= 1) {
@@ -589,6 +590,41 @@ export function animateRobots() {
   });
 }
 
+export function animateCamera() {
+  const dt = cameraClock.getDelta(); 
+
+  const baseSpeed = tileSize * 0.5;
+  const speedFactor = tileSize * 0.1; // additional tile speed per 1 point of score
+  const cameraSpeed = baseSpeed + score * speedFactor; 
+
+  const driftY = camera.position.y + cameraSpeed * dt; 
+
+  // move camera if player moving ahead
+  const playerY = player.position.y;
+
+  const desiredCamY = Math.max(driftY, playerY + cameraOffset.y);
+
+  if (desiredCamY > camera.position.y) {
+    camera.position.y = desiredCamY;
+  }
+
+  const bottomOfViewY = camera.position.y - Math.abs(cameraOffset.y);
+  if (playerY < bottomOfViewY) {
+    if (!ggElement || !finalScoreElement) return;
+    ggElement.style.visibility = "visible";
+
+    if (isGameRunning) {
+      const crashSound =
+        crashSounds[Math.floor(Math.random() * crashSoundPaths.length)];
+      if (crashSound.isPlaying) crashSound.stop();
+      crashSound.play();
+    }
+
+    isGameRunning = false;
+    finalScoreElement.innerText = score.toString();
+  }
+}
+
 function collisionCheck() {
   const rowData = metadata[position.currRow - 1];
   if (!rowData) return;
@@ -690,6 +726,7 @@ function animate() {
   animateStudents();
   animateCoins();
   animateRobots();
+  animateCamera();
   collisionCheck();
   renderer.render(world, camera);
 }
