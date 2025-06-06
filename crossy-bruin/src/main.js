@@ -594,7 +594,7 @@ export function animateCamera() {
   const dt = cameraClock.getDelta(); 
 
   const baseSpeed = tileSize * 0.5;
-  const speedFactor = tileSize * 0.1; // additional tile speed per 1 point of score
+  const speedFactor = tileSize * 0.5; // additional tile speed per 1 point of score
   const cameraSpeed = baseSpeed + score * speedFactor; 
 
   const driftY = camera.position.y + cameraSpeed * dt; 
@@ -608,8 +608,7 @@ export function animateCamera() {
     camera.position.y = desiredCamY;
   }
 
-  const bottomOfViewY = camera.position.y - Math.abs(cameraOffset.y);
-  if (playerY < bottomOfViewY) {
+  if (playerY < camera.position.y - 50) {
     if (!ggElement || !finalScoreElement) return;
     ggElement.style.visibility = "visible";
 
