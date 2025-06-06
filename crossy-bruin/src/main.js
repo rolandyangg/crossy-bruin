@@ -427,7 +427,7 @@ function animatePlayer() {
   //    - Make sure the shadow camera also recenters on that new light position:
   dirLight.shadow.camera.position.copy(dirLight.position);
   dirLight.shadow.camera.updateProjectionMatrix();
-  
+
   // Must loop through for z instead of player.position.z else it will move the camera too
   for (let i = 0; i < player.children.length; i++) {
     if (player.children[i].isCamera) continue;
@@ -596,7 +596,7 @@ export function animateCamera() {
   const dt = cameraClock.getDelta(); 
 
   const baseSpeed = tileSize * 0.5;
-  const speedFactor = tileSize * 0.5; // additional tile speed per 1 point of score
+  const speedFactor = tileSize * 0.1; // additional tile speed per 1 point of score
   const cameraSpeed = baseSpeed + score * speedFactor; 
 
   const driftY = camera.position.y + cameraSpeed * dt; 
@@ -727,7 +727,9 @@ function animate() {
   animateStudents();
   animateCoins();
   animateRobots();
-  animateCamera();
+  if(isGameRunning){
+    animateCamera();
+  }
   collisionCheck();
   renderer.render(world, camera);
 }
