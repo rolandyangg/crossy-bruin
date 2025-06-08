@@ -23,7 +23,6 @@ import Tree from "./exports/models/Tree.js";
 import Coin from "./exports/models/Coin.js";
 import isValidMove from "./exports/helpers/isValidMove.js";
 import metadata from "./exports/metadata.js";
-import { mx_bilerp_1 } from "three/src/nodes/materialx/lib/mx_noise.js";
 import Sidewalk from "./exports/models/Sidewalk.js";
 import Rock from "./exports/models/Rock.js";
 import StarshipRobot from "./exports/models/Starship.js";
@@ -229,8 +228,6 @@ const camera = new THREE.OrthographicCamera(
 camera.up.set(0, 0, 1); // Make z-axis the up direction
 camera.position.set(200, -300, 350);
 camera.lookAt(0, 0, 0);
-
-const savedQuarternion = camera.quaternion.clone();
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
