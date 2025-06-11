@@ -56,13 +56,13 @@ const ggElement = document.getElementById("gg-container");
 const finalScoreElement = document.getElementById("final-score");
 const coinsElement = document.getElementById("coins");
 
-const jumpSoundPath = "./src/sounds/jump.mp3";
+const jumpSoundPath = "/sounds/jump.mp3";
 const crashSoundPaths = [
-  "./src/sounds/crash1.mp3",
-  "./src/sounds/crash2.mp3",
-  "./src/sounds/crash3.mp3",
+  "/sounds/crash1.mp3",
+  "/sounds/crash2.mp3",
+  "/sounds/crash3.mp3",
 ];
-const coinSoundPath = "./src/sounds/coin.mp3";
+const coinSoundPath = "/sounds/coin.mp3";
 
 // We need an array for coins because each coin can be at a different point in their animation at a time
 const coinMetadata = []; // Each element: { model, coinTimer }
